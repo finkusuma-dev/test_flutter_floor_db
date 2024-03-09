@@ -34,5 +34,22 @@ void main() {
       // expect(actual.age, equals(25));
       expect(actual.age, equals(person.age));
     });
+
+    test('Update person', () async {
+      final person = Person(id: 1, name: 'Simon', age: 25);
+      await personDao.insert(person,);
+
+      final actual = await personDao.getPerson(person.id);
+
+      expect(actual!.equalId(person), isTrue);
+      expect(actual.name, equals(person.name));      
+      expect(actual.age, equals(person.age));
+
+      person.age = 30;
+      await personDao.update(person);
+      final actual2 = await personDao.getPerson(person.id);
+      expect(actual2!.age, equals(person.age));
+
+    });
   });
 }

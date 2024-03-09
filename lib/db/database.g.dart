@@ -111,6 +111,15 @@ class _$PersonDao extends PersonDao {
                   'id': item.id,
                   'name': item.name,
                   'age': item.age
+                }),
+        _personUpdateAdapter = UpdateAdapter(
+            database,
+            'Person',
+            ['id'],
+            (Person item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'age': item.age
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -120,6 +129,8 @@ class _$PersonDao extends PersonDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Person> _personInsertionAdapter;
+
+  final UpdateAdapter<Person> _personUpdateAdapter;
 
   @override
   Future<List<Person>> getAllPersons() async {
@@ -143,5 +154,10 @@ class _$PersonDao extends PersonDao {
   @override
   Future<void> insert(Person person) async {
     await _personInsertionAdapter.insert(person, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> update(Person person) async {
+    await _personUpdateAdapter.update(person, OnConflictStrategy.abort);
   }
 }

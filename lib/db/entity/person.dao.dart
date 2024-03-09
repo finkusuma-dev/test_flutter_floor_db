@@ -10,4 +10,7 @@ abstract class PersonDao {
 
   @Insert()
   Future<void> insert(Person person);
+
+  @Update()
+  Future<void> update(Person person);
 }
