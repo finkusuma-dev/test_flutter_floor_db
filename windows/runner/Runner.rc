@@ -89,7 +89,7 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.fin_dev.test_floor" "\0"
+            VALUE "CompanyName", "com.fin_dev" "\0"
             VALUE "FileDescription", "test_floor" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "test_floor" "\0"
