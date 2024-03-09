@@ -69,7 +69,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `age` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -107,8 +107,11 @@ class _$PersonDao extends PersonDao {
         _personInsertionAdapter = InsertionAdapter(
             database,
             'Person',
-            (Person item) =>
-                <String, Object?>{'id': item.id, 'name': item.name});
+            (Person item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'age': item.age
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -121,15 +124,19 @@ class _$PersonDao extends PersonDao {
   @override
   Future<List<Person>> getAllPersons() async {
     return _queryAdapter.queryList('select * from person',
-        mapper: (Map<String, Object?> row) =>
-            Person(id: row['id'] as int, name: row['name'] as String));
+        mapper: (Map<String, Object?> row) => Person(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            age: row['age'] as int?));
   }
 
   @override
   Future<Person?> getPerson(int id) async {
     return _queryAdapter.query('select * from Person where id=?1',
-        mapper: (Map<String, Object?> row) =>
-            Person(id: row['id'] as int, name: row['name'] as String),
+        mapper: (Map<String, Object?> row) => Person(
+            id: row['id'] as int,
+            name: row['name'] as String,
+            age: row['age'] as int?),
         arguments: [id]);
   }
 
