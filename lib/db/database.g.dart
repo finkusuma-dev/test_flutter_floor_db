@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `age` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `age` INTEGER)');
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `name` AS SELECT distinct(name) AS name FROM person');
@@ -139,7 +139,7 @@ class _$PersonDao extends PersonDao {
   Future<List<Person>> getAllPersons() async {
     return _queryAdapter.queryList('select * from person',
         mapper: (Map<String, Object?> row) => Person(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?));
   }
@@ -148,7 +148,7 @@ class _$PersonDao extends PersonDao {
   Future<Person?> getPerson(int id) async {
     return _queryAdapter.query('select * from Person where id=?1',
         mapper: (Map<String, Object?> row) => Person(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?),
         arguments: [id]);
@@ -161,8 +161,9 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<void> insert(Person person) async {
-    await _personInsertionAdapter.insert(person, OnConflictStrategy.abort);
+  Future<int> insertA(Person person) {
+    return _personInsertionAdapter.insertAndReturnId(
+        person, OnConflictStrategy.abort);
   }
 
   @override

@@ -9,7 +9,14 @@ abstract class PersonDao {
   Future<Person?> getPerson(int id);
 
   @Insert()
-  Future<void> insert(Person person);
+  Future<int> insertA(Person person);
+  
+  Future<int> insert(Person person) async{
+    int id = await insertA(person);
+    person.id = id;
+    return id;
+  }
+
 
   @Update()
   Future<void> update(Person person);
