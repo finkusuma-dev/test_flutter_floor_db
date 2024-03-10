@@ -33,6 +33,22 @@ void main() {
       expect(actual.name, equals(person.name));
       // expect(actual.age, equals(25));
       expect(actual.age, equals(person.age));
+
+      final List<Name> names = await personDao.showName();
+            
+      expect(names.any((element) => element.name == 'Simon'), true);
+    });
+
+    test('Get distinct name from Person', () async {
+      final simon = Person(id: 1, name: 'Simon', age: 25);
+      final ali = Person(id: 2, name: 'Ali',);
+      await personDao.insert(simon,);
+      await personDao.insert(ali,);
+
+      final List<Name> names = await personDao.showName();
+            
+      expect(names.any((element) => element.name == 'Simon'), true);
+      expect(names.any((element) => element.name == 'Ali'), true);
     });
 
     test('Update person', () async {

@@ -87,6 +87,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `age` INTEGER, PRIMARY KEY (`id`))');
 
+        await database.execute(
+            'CREATE VIEW IF NOT EXISTS `name` AS SELECT distinct(name) AS name FROM person');
+
         await callback?.onCreate?.call(database, version);
       },
     );
@@ -149,6 +152,12 @@ class _$PersonDao extends PersonDao {
             name: row['name'] as String,
             age: row['age'] as int?),
         arguments: [id]);
+  }
+
+  @override
+  Future<List<Name>> showName() async {
+    return _queryAdapter.queryList('select * from name',
+        mapper: (Map<String, Object?> row) => Name(row['name'] as String));
   }
 
   @override

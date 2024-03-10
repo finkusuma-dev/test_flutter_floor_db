@@ -9,9 +9,9 @@ import 'entity/person.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 2, entities: [Person])
+@Database(version: 2, entities: [Person], views: [Name])
 abstract class AppDatabase extends FloorDatabase {
-  PersonDao get personDao;
+  PersonDao get personDao;  
 }
 
 final migration1to2 = Migration(1,2, (db) async {

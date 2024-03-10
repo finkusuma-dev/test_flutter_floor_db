@@ -13,4 +13,14 @@ abstract class PersonDao {
 
   @Update()
   Future<void> update(Person person);
+
+  @Query('select * from name')
+  Future<List<Name>> showName();
+}
+
+@DatabaseView('SELECT distinct(name) AS name FROM person', viewName: 'name')
+class Name {
+  final String name;
+
+  Name(this.name);
 }
