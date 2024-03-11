@@ -115,7 +115,7 @@ class _$PersonDao extends PersonDao {
   _$PersonDao(
     this.database,
     this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database),
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _personInsertionAdapter = InsertionAdapter(
             database,
             'Person',
@@ -123,7 +123,8 @@ class _$PersonDao extends PersonDao {
                   'name': item.name,
                   'age': item.age,
                   'id': item.id
-                }),
+                },
+            changeListener),
         _personUpdateAdapter = UpdateAdapter(
             database,
             'Person',
@@ -132,7 +133,8 @@ class _$PersonDao extends PersonDao {
                   'name': item.name,
                   'age': item.age,
                   'id': item.id
-                });
+                },
+            changeListener);
 
   final sqflite.DatabaseExecutor database;
 
@@ -151,6 +153,17 @@ class _$PersonDao extends PersonDao {
             id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?));
+  }
+
+  @override
+  Stream<List<Person>> getAllAsStream() {
+    return _queryAdapter.queryListStream('select * from Person',
+        mapper: (Map<String, Object?> row) => Person(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            age: row['age'] as int?),
+        queryableName: 'Person',
+        isView: false);
   }
 
   @override

@@ -6,6 +6,9 @@ abstract class PersonDao extends BaseDao<Person>{
   @Query('select * from Person')
   Future<List<Person>> getAll();
 
+  @Query('select * from Person')
+  Stream<List<Person>> getAllAsStream();
+
   @Query('select * from Person where id=:id')
   Future<Person?> get(int id);   
   
