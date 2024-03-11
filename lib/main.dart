@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:test_floor/db/database.dart';
 import 'package:test_floor/db/entity/hobby.dart';
 import 'package:test_floor/db/entity/person.dart';
@@ -40,7 +41,17 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     () async {
-      database = await AppDatabase.memory();
+      var docPath = await getApplicationDocumentsDirectory();
+      String dbPath = '${docPath.path}/data.db';
+      dev.log('path: $dbPath');
+      // database = await AppDatabase.memory();
+      database = await AppDatabase.storage((dbPath));
+
+      Future.delayed(Duration.zero, (){
+        setState(() {
+          
+        });
+      });
     }();
 
     super.initState();
@@ -119,7 +130,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   }
                   return const Center(
-                    child: Text('Loading data'),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.hourglass_top, color: Colors.orange,size: 40,),
+                        SizedBox(height: 10,),
+                        Text('Loading data', style: TextStyle(fontSize: 16),),
+                      ],
+                    ),
                   );
                 },
               )
