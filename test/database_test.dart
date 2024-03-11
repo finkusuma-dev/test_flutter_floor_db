@@ -12,10 +12,7 @@ void main() {
     late PersonDao personDao;
 
     setUp(() async {
-      database =
-          await $FloorAppDatabase.inMemoryDatabaseBuilder().addMigrations([
-        migration1to2,
-      ]).build();
+      database = await AppDatabase.memory();
 
       personDao = database.personDao;
     });
