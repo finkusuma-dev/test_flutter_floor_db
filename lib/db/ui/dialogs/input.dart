@@ -19,12 +19,20 @@ class InputDialog extends StatefulWidget {
 
 class _InputDialogState extends State<InputDialog> {
   final TextEditingController _textFieldController = TextEditingController();
+  final FocusNode _textFieldFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    _textFieldFocusNode.requestFocus();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.title),
       content: TextField(
+        focusNode: _textFieldFocusNode,
         controller: _textFieldController,
         decoration: InputDecoration(hintText: "Enter ${widget.title}"),
       ),

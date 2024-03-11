@@ -14,4 +14,7 @@ class Person extends BaseEntity {
 
   Future<List<Hobby>> getHobbies(AppDatabase db) async =>
       await db.personDao.getPersonHobbies(super.id!);
+
+  Stream<List<Hobby>> getHobbiesAsStream(AppDatabase db) =>
+      db.personDao.getPersonHobbiesAsStream(super.id!);
 }

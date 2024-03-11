@@ -38,11 +38,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  Stream<List<Person>>? people;
+  ///
+  Stream<List<Person>>? peopleStream;
+  Stream<List<Stream<String>>>? peopleHobbies;
   AppDatabase? database;
-  
-  
+
   @override
   void initState() {
     () async {
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       dev.log('path: $dbPath');
       // database = await AppDatabase.memory();
       database = await AppDatabase.storage((dbPath));
-      people = database!.personDao.getAllAsStream();
+      peopleStream = database!.personDao.getAllAsStream();
 
       Future.delayed(Duration.zero, () {
         setState(() {});
@@ -69,117 +69,151 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: SizedBox(
-        child: database != null
-            ? StreamBuilder<List<Person>>(
-                stream: people,
-                builder: (context, peopleResult) {
-                  if (peopleResult.hasData) {
-                    var people = peopleResult.data!;
-                    return ListView.separated(
-                      separatorBuilder: (_, int i) => Divider(
-                        height: 1,
-                        color: Colors.grey.withOpacity(0.5),
-                      ),
-                      itemCount: peopleResult.data!.length,
-                      itemBuilder: (_, int i) => _personWidget(
-                        id: people[i].id!,
-                        person: people[i],
-                      ),
-                    );
-                  } else if (peopleResult.hasError) {
-                    return Center(
-                      child: Text('Error ${peopleResult.error!.toString()}'),
-                    );
-                  }
-                  return const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.hourglass_top,
-                          color: Colors.orange,
-                          size: 40,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          'Loading data',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )
-            : const SizedBox.shrink(),
+        child:
+            database != null ? _peopleStreamBuilder() : const SizedBox.shrink(),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          String? name = await showInputDialog(context, title: 'Person');
-          if (name == null) return;
-
-          await database?.personDao.insert(
-            Person(name: name),
-          );
-
-          setState(() {});
-        },
+        onPressed: _handleInsertNewPerson,
         label: const Text('Insert Person'),
         // child: const Text('Insert Person'),
       ),
     );
   }
 
-  Widget _personWidget({required int id, required Person person}) {
+  StreamBuilder<List<Person>> _peopleStreamBuilder() {
+    return StreamBuilder<List<Person>>(
+      stream: peopleStream,
+      builder: (context, peopleResult) {
+        if (peopleResult.hasData) {
+          var people = peopleResult.data!;
+          return ListView.separated(
+            separatorBuilder: (_, int i) => Divider(
+              height: 1,
+              color: Colors.grey.withOpacity(0.5),
+            ),
+            itemCount: peopleResult.data!.length,
+            itemBuilder: (_, int i) => PersonWidget(
+              // i: i,
+              person: people[i],
+              database: database!,
+            ),
+          );
+        } else if (peopleResult.hasError) {
+          return Center(
+            child: Text('Error ${peopleResult.error!.toString()}'),
+          );
+        }
+        return const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.hourglass_top,
+                color: Colors.orange,
+                size: 40,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Loading data',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleInsertNewPerson() async {
+    String? name = await showInputDialog(context, title: 'Person');
+    if (name == null) return;
+
+    await database?.personDao.insert(
+      Person(name: name),
+    );
+
+    setState(() {});
+  }
+}
+
+class PersonWidget extends StatefulWidget {
+  const PersonWidget({super.key, required this.person, required this.database});
+
+  final Person person;
+  final AppDatabase database;
+
+  @override
+  State<PersonWidget> createState() => _PersonWidgetState();
+}
+
+class _PersonWidgetState extends State<PersonWidget> {
+  late Stream<List<Hobby>>? hobbies;
+
+  @override
+  void initState() {
+    hobbies = widget.person.getHobbiesAsStream(widget.database);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        dev.log('Person id = ${id}, name = ${person.name}');
+        dev.log(
+            'Person id = ${widget.person.id}, name = ${widget.person.name}');
       },
       child: ListTile(
-        title: Text(person.name),
-        subtitle: //_getPersonHobbies(person.id!),
-        FutureBuilder<List<Hobby>>(
-            future: person.getHobbies(database!),
-            builder: (context, hobbyResult) {
+        title: Text(widget.person.name),
+        subtitle: StreamBuilder(
+            stream: hobbies,
+            builder: (_, hobbyResult) {
               if (hobbyResult.hasData) {
-                return Text(hobbyResult.data!.map((el) => el.name).join(', '));
+                return Text(
+                  hobbyResult.data!
+                      .map(
+                        (e) => e.name,
+                      )
+                      .join(', '),
+                );
               }
-
-              return Container();
+              return const SizedBox.shrink();
             }),
-        trailing: FilledButton(
-          style: const ButtonStyle(
-              // backgroundColor: MaterialStatePropertyAll(
-              //   // Colors.purple[4/00] as Color
-              // ),
-              padding: MaterialStatePropertyAll(
-                  EdgeInsets.symmetric(vertical: 1, horizontal: 15))),
-          onPressed: () async {
-            String? newHobby = await showInputDialog(context,
-                title: 'New Hobby of ${person.name}');
-
-            if (newHobby == null) return;
-            database?.hobbyDao
-                .insert(Hobby(name: newHobby, personId: person.id!));
-
-            setState(() {});
-
-            dev.log('');
-          },
-          child: const Text(
-            'Add hobby',
-            style: TextStyle(fontSize: 10),
-          ),
-        ),
+        trailing: _addHobbyButton(),
       ),
     );
   }
 
-   dynamic _getPersonHobbies(int personId) async{
-    List<Hobby>? hobbies = await database?.personDao.getPersonHobbies(personId);
-    if (hobbies == null || hobbies.isEmpty) return null;
-    return Text(hobbies.map((el) => el.name).join(', '));
-    
+  FilledButton _addHobbyButton() {
+    return FilledButton(
+      style: const ButtonStyle(
+        // backgroundColor: MaterialStatePropertyAll(
+        //   // Colors.purple[4/00] as Color
+        // ),
+        padding: MaterialStatePropertyAll(
+          EdgeInsets.symmetric(vertical: 1, horizontal: 15),
+        ),
+      ),
+      onPressed: _handleAddHobby,
+      child: const Text(
+        'Add hobby',
+        style: TextStyle(fontSize: 10),
+      ),
+    );
+  }
+
+  void _handleAddHobby() async {
+    String? newHobby = await showInputDialog(context,
+        title: 'New hobby of ${widget.person.name}');
+
+    if (newHobby == null) return;
+    widget.database.hobbyDao.insert(
+      Hobby(name: newHobby, personId: widget.person.id!),
+    );
+
+    setState(() {});
+
+    dev.log('');
   }
 }

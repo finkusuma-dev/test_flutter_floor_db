@@ -187,6 +187,19 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
+  Stream<List<Hobby>> getPersonHobbiesAsStream(int personId) {
+    return _queryAdapter.queryListStream(
+        'select * from Hobby where personId=?1',
+        mapper: (Map<String, Object?> row) => Hobby(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            personId: row['personId'] as int),
+        arguments: [personId],
+        queryableName: 'Hobby',
+        isView: false);
+  }
+
+  @override
   Future<List<Name>> showNames() async {
     return _queryAdapter.queryList('select * from name',
         mapper: (Map<String, Object?> row) => Name(row['name'] as String));
@@ -216,7 +229,8 @@ class _$HobbyDao extends HobbyDao {
                   'name': item.name,
                   'personId': item.personId,
                   'id': item.id
-                }),
+                },
+            changeListener),
         _hobbyUpdateAdapter = UpdateAdapter(
             database,
             'Hobby',
@@ -225,7 +239,8 @@ class _$HobbyDao extends HobbyDao {
                   'name': item.name,
                   'personId': item.personId,
                   'id': item.id
-                });
+                },
+            changeListener);
 
   final sqflite.DatabaseExecutor database;
 
