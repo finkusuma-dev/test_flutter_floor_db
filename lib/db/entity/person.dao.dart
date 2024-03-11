@@ -1,7 +1,19 @@
 part of 'person.dart';
 
+
 @dao
-abstract class PersonDao {
+abstract class BaseDao<BaseEntity>{
+  
+  // @Query('select * from ${T.toString()} where id=:id')
+  // Future<T?> get(int id);
+
+  @Update()
+  Future<void> update(BaseEntity obj);
+  
+}
+
+@dao
+abstract class PersonDao extends BaseDao<Person>{
   @Query('select * from person')
   Future<List<Person>> getAllPersons();
 
@@ -18,8 +30,8 @@ abstract class PersonDao {
   }
 
 
-  @Update()
-  Future<void> update(Person person);
+  // @Update()
+  // Future<void> update(Person person);
 
   @Query('select * from name')
   Future<List<Name>> showName();

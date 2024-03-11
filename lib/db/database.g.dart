@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `age` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `name` AS SELECT distinct(name) AS name FROM person');
@@ -111,18 +111,18 @@ class _$PersonDao extends PersonDao {
             database,
             'Person',
             (Person item) => <String, Object?>{
-                  'id': item.id,
                   'name': item.name,
-                  'age': item.age
+                  'age': item.age,
+                  'id': item.id
                 }),
         _personUpdateAdapter = UpdateAdapter(
             database,
             'Person',
             ['id'],
             (Person item) => <String, Object?>{
-                  'id': item.id,
                   'name': item.name,
-                  'age': item.age
+                  'age': item.age,
+                  'id': item.id
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -167,7 +167,7 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<void> update(Person person) async {
-    await _personUpdateAdapter.update(person, OnConflictStrategy.abort);
+  Future<void> update(Person obj) async {
+    await _personUpdateAdapter.update(obj, OnConflictStrategy.abort);
   }
 }
