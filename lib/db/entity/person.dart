@@ -1,14 +1,8 @@
 import 'package:floor/floor.dart';
+import 'base.dart';
 
 part 'person.dao.dart';
 
-
-@entity
-abstract class BaseEntity {
-  @PrimaryKey(autoGenerate: true)  
-  int? id;
-  BaseEntity({this.id});
-}
 
 @entity
 class Person extends BaseEntity{

@@ -161,9 +161,9 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<int> insertA(Person person) {
+  Future<int> insertA(Person obj) {
     return _personInsertionAdapter.insertAndReturnId(
-        person, OnConflictStrategy.abort);
+        obj, OnConflictStrategy.abort);
   }
 
   @override
