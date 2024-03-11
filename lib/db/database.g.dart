@@ -63,13 +63,15 @@ class _$AppDatabase extends AppDatabase {
 
   PersonDao? _personDaoInstance;
 
+  HobbyDao? _hobbyDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -86,6 +88,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `name` AS SELECT distinct(name) AS name FROM person');
@@ -99,6 +103,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   PersonDao get personDao {
     return _personDaoInstance ??= _$PersonDao(database, changeListener);
+  }
+
+  @override
+  HobbyDao get hobbyDao {
+    return _hobbyDaoInstance ??= _$HobbyDao(database, changeListener);
   }
 }
 
@@ -155,6 +164,16 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
+  Future<List<Hobby>> getPersonHobbies(int personId) async {
+    return _queryAdapter.queryList('select * from Hobby where personId=?1',
+        mapper: (Map<String, Object?> row) => Hobby(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            personId: row['personId'] as int),
+        arguments: [personId]);
+  }
+
+  @override
   Future<List<Name>> showNames() async {
     return _queryAdapter.queryList('select * from name',
         mapper: (Map<String, Object?> row) => Name(row['name'] as String));
@@ -169,5 +188,79 @@ class _$PersonDao extends PersonDao {
   @override
   Future<void> update(Person obj) async {
     await _personUpdateAdapter.update(obj, OnConflictStrategy.abort);
+  }
+}
+
+class _$HobbyDao extends HobbyDao {
+  _$HobbyDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _hobbyInsertionAdapter = InsertionAdapter(
+            database,
+            'Hobby',
+            (Hobby item) => <String, Object?>{
+                  'name': item.name,
+                  'personId': item.personId,
+                  'id': item.id
+                }),
+        _hobbyUpdateAdapter = UpdateAdapter(
+            database,
+            'Hobby',
+            ['id'],
+            (Hobby item) => <String, Object?>{
+                  'name': item.name,
+                  'personId': item.personId,
+                  'id': item.id
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Hobby> _hobbyInsertionAdapter;
+
+  final UpdateAdapter<Hobby> _hobbyUpdateAdapter;
+
+  @override
+  Future<List<Hobby>> getAll() async {
+    return _queryAdapter.queryList('select * from Hobby',
+        mapper: (Map<String, Object?> row) => Hobby(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            personId: row['personId'] as int));
+  }
+
+  @override
+  Future<Hobby?> get(int id) async {
+    return _queryAdapter.query('select * from Hobby where id=?1',
+        mapper: (Map<String, Object?> row) => Hobby(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            personId: row['personId'] as int),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<Hobby>> getPersonHobbies(int personId) async {
+    return _queryAdapter.queryList('select * from Hobby where personId=?1',
+        mapper: (Map<String, Object?> row) => Hobby(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            personId: row['personId'] as int),
+        arguments: [personId]);
+  }
+
+  @override
+  Future<int> insertA(Hobby obj) {
+    return _hobbyInsertionAdapter.insertAndReturnId(
+        obj, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> update(Hobby obj) async {
+    await _hobbyUpdateAdapter.update(obj, OnConflictStrategy.abort);
   }
 }

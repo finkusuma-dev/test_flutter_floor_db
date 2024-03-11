@@ -5,6 +5,8 @@ abstract class BaseEntity {
   @PrimaryKey(autoGenerate: true)  
   int? id;
   BaseEntity({this.id});
+
+  bool equalId(BaseEntity obj) => obj.id == id;
 }
 
 
