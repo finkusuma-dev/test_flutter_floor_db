@@ -1,6 +1,12 @@
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:test_floor/db/database.dart';
+import 'package:test_floor/db/entity/hobby.dart';
+import 'package:test_floor/db/entity/person.dart';
+import 'package:test_floor/db/ui/dialogs/input.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -30,12 +36,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  AppDatabase? database;
+  @override
+  void initState() {
+    () async {
+      database = await AppDatabase.memory();
+    }();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    super.initState();
   }
 
   @override
@@ -45,24 +53,91 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: SizedBox(
+        child: database != null
+            ? FutureBuilder<List<Person>>(
+                future: database!.personDao.getAll(),
+                builder: (context, peopleResult) {
+                  if (peopleResult.hasData) {
+                    var people = peopleResult.data!;
+                    return ListView.separated(
+                      separatorBuilder: (_, int i) => Divider(
+                        height: 1,
+                        color: Colors.grey.withOpacity(0.5),
+                      ),
+                      itemCount: peopleResult.data!.length,
+                      itemBuilder: (_, int i) => InkWell(
+                        onTap: () {
+                          dev.log(
+                              'Person $i, id = ${people[i].id}, name = ${people[i].name}');
+                        },
+                        child: ListTile(
+                          title: Text(people[i].name),
+                          subtitle: FutureBuilder<List<Hobby>>(
+                              future: database?.personDao
+                                  .getPersonHobbies(people[i].id!),
+                              builder: (context, hobbyResult) {
+                                if (hobbyResult.hasData) {
+                                  return Text(hobbyResult.data!
+                                      .map((el) => el.name)
+                                      .join(', '));
+                                }
+
+                                return const SizedBox.shrink();
+                              }),
+                          trailing: FilledButton(
+                            style: const ButtonStyle(
+                                // backgroundColor: MaterialStatePropertyAll(
+                                //   // Colors.purple[4/00] as Color
+                                // ),
+                                padding: MaterialStatePropertyAll(
+                                    EdgeInsets.symmetric(
+                                        vertical: 1, horizontal: 15))),
+                            onPressed: () async {
+                              String? newHobby = await showInputDialog(context,
+                                  title: 'New Hobby of ${people[i].name}');
+
+                              if (newHobby == null) return;
+                              database?.hobbyDao.insert(Hobby(
+                                  name: newHobby, personId: people[i].id!));
+
+                              setState(() {});
+
+                              dev.log('');
+                            },
+                            child: const Text(
+                              'Add hobby',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (peopleResult.hasError) {
+                    return Center(
+                      child: Text('Error ${peopleResult.error!.toString()}'),
+                    );
+                  }
+                  return const Center(
+                    child: Text('Loading data'),
+                  );
+                },
+              )
+            : const SizedBox.shrink(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          String? name = await showInputDialog(context, title: 'Person');
+          if (name == null) return;
+
+          await database?.personDao.insert(
+            Person(name: name),
+          );
+
+          setState(() {});
+        },
+        label: const Text('Insert Person'),
+        // child: const Text('Insert Person'),
       ),
     );
   }
