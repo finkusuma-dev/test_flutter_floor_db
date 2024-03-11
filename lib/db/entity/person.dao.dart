@@ -3,14 +3,14 @@ part of 'person.dart';
 
 @dao
 abstract class PersonDao extends BaseDao<Person>{
-  @Query('select * from person')
-  Future<List<Person>> getAllPersons();
+  @Query('select * from Person')
+  Future<List<Person>> getAll();
 
   @Query('select * from Person where id=:id')
-  Future<Person?> getPerson(int id);
+  Future<Person?> get(int id);
 
   @Query('select * from name')
-  Future<List<Name>> showName();
+  Future<List<Name>> showNames();
 }
 
 @DatabaseView('SELECT distinct(name) AS name FROM person', viewName: 'name')

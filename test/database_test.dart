@@ -29,7 +29,7 @@ void main() {
 
       expect(id, isNotNull);
 
-      final actual = await personDao.getPerson(id);
+      final actual = await personDao.get(id);
       expect(person.id, actual!.id);      
 
       // expect(actual!.equalId(person), isTrue);
@@ -48,7 +48,7 @@ void main() {
       await personDao.insert(simon,);
       await personDao.insert(ali,);
 
-      final List<Name> names = await personDao.showName();
+      final List<Name> names = await personDao.showNames();
             
       expect(names.any((element) => element.name == 'Simon'), true);
       expect(names.any((element) => element.name == 'Ali'), true);
@@ -58,7 +58,7 @@ void main() {
       final person = Person(name: 'Simon', age: 25);
       await personDao.insert(person,);
 
-      final actual = await personDao.getPerson(person.id!);
+      final actual = await personDao.get(person.id!);
 
       expect(actual!.equalId(person), isTrue);
       expect(actual.name, equals(person.name));      
@@ -66,7 +66,7 @@ void main() {
 
       person.age = 30;
       await personDao.update(person);
-      final actual2 = await personDao.getPerson(person.id!);
+      final actual2 = await personDao.get(person.id!);
       expect(actual2!.age, equals(person.age));
 
     });

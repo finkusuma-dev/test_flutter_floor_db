@@ -136,8 +136,8 @@ class _$PersonDao extends PersonDao {
   final UpdateAdapter<Person> _personUpdateAdapter;
 
   @override
-  Future<List<Person>> getAllPersons() async {
-    return _queryAdapter.queryList('select * from person',
+  Future<List<Person>> getAll() async {
+    return _queryAdapter.queryList('select * from Person',
         mapper: (Map<String, Object?> row) => Person(
             id: row['id'] as int?,
             name: row['name'] as String,
@@ -145,7 +145,7 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<Person?> getPerson(int id) async {
+  Future<Person?> get(int id) async {
     return _queryAdapter.query('select * from Person where id=?1',
         mapper: (Map<String, Object?> row) => Person(
             id: row['id'] as int?,
@@ -155,7 +155,7 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<List<Name>> showName() async {
+  Future<List<Name>> showNames() async {
     return _queryAdapter.queryList('select * from name',
         mapper: (Map<String, Object?> row) => Name(row['name'] as String));
   }
