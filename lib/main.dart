@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // backgroundColor: const HSLColor.fromAHSL(1, 100, 1, 1).toColor(),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
@@ -149,12 +150,28 @@ class PersonWidget extends StatefulWidget {
 }
 
 class _PersonWidgetState extends State<PersonWidget> {
-  late Stream<List<Hobby>>? hobbies;
+  ///
+  List<Hobby> hobbies = [];
+  late StreamSubscription streamSubcription;
 
   @override
   void initState() {
-    hobbies = widget.person.getHobbiesAsStream(widget.database);
+    streamSubcription = widget.person
+        .getHobbiesAsStream(widget.database)
+        .listen((hobbiesEvent) {
+      dev.log('> hobbyEvent');
+      hobbies = hobbiesEvent;
+      setState(() {});
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    dev.log('disposing streamSubscription');
+    streamSubcription.cancel();
+    super.dispose();
   }
 
   @override
@@ -166,20 +183,15 @@ class _PersonWidgetState extends State<PersonWidget> {
       },
       child: ListTile(
         title: Text(widget.person.name),
-        subtitle: StreamBuilder(
-            stream: hobbies,
-            builder: (_, hobbyResult) {
-              if (hobbyResult.hasData) {
-                return Text(
-                  hobbyResult.data!
-                      .map(
-                        (e) => e.name,
-                      )
-                      .join(', '),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
+        subtitle: hobbies.isNotEmpty
+            ? Text(
+                hobbies
+                    .map(
+                      (e) => e.name,
+                    )
+                    .join(', '),
+              )
+            : null,
         trailing: _addHobbyButton(),
       ),
     );
@@ -213,7 +225,5 @@ class _PersonWidgetState extends State<PersonWidget> {
     );
 
     setState(() {});
-
-    dev.log('');
   }
 }
