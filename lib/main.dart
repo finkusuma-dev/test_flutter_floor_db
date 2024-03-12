@@ -156,10 +156,11 @@ class _PersonWidgetState extends State<PersonWidget> {
 
   @override
   void initState() {
+    dev.log('subscribe to ${widget.person.name}\'s hobbies');
     streamSubcription = widget.person
         .getHobbiesAsStream(widget.database)
         .listen((hobbiesEvent) {
-      dev.log('> hobbyEvent');
+      dev.log('${widget.person.name}\'s hobbies event stream triggered');
       hobbies = hobbiesEvent;
       setState(() {});
     });
@@ -169,7 +170,7 @@ class _PersonWidgetState extends State<PersonWidget> {
 
   @override
   void dispose() {
-    dev.log('disposing streamSubscription');
+    dev.log('disposing ${widget.person.name}\'s hobbies streamSubscription');
     streamSubcription.cancel();
     super.dispose();
   }
@@ -192,7 +193,24 @@ class _PersonWidgetState extends State<PersonWidget> {
                     .join(', '),
               )
             : null,
-        trailing: _addHobbyButton(),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _addHobbyButton(),
+            IconButton(
+              onPressed: () {
+                widget.database.personDao.deletePerson(
+                  widget.database,
+                  widget.person,
+                );
+              },
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -223,7 +241,5 @@ class _PersonWidgetState extends State<PersonWidget> {
     widget.database.hobbyDao.insert(
       Hobby(name: newHobby, personId: widget.person.id!),
     );
-
-    setState(() {});
   }
 }

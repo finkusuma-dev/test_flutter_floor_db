@@ -134,6 +134,16 @@ class _$PersonDao extends PersonDao {
                   'age': item.age,
                   'id': item.id
                 },
+            changeListener),
+        _personDeletionAdapter = DeletionAdapter(
+            database,
+            'Person',
+            ['id'],
+            (Person item) => <String, Object?>{
+                  'name': item.name,
+                  'age': item.age,
+                  'id': item.id
+                },
             changeListener);
 
   final sqflite.DatabaseExecutor database;
@@ -145,6 +155,8 @@ class _$PersonDao extends PersonDao {
   final InsertionAdapter<Person> _personInsertionAdapter;
 
   final UpdateAdapter<Person> _personUpdateAdapter;
+
+  final DeletionAdapter<Person> _personDeletionAdapter;
 
   @override
   Future<List<Person>> getAll() async {
@@ -215,6 +227,16 @@ class _$PersonDao extends PersonDao {
   Future<void> update(Person obj) async {
     await _personUpdateAdapter.update(obj, OnConflictStrategy.abort);
   }
+
+  @override
+  Future<int> deleteA(Person obj) {
+    return _personDeletionAdapter.deleteAndReturnChangedRows(obj);
+  }
+
+  @override
+  Future<int> deleteAllT(List<Person> list) {
+    return _personDeletionAdapter.deleteListAndReturnChangedRows(list);
+  }
 }
 
 class _$HobbyDao extends HobbyDao {
@@ -240,6 +262,16 @@ class _$HobbyDao extends HobbyDao {
                   'personId': item.personId,
                   'id': item.id
                 },
+            changeListener),
+        _hobbyDeletionAdapter = DeletionAdapter(
+            database,
+            'Hobby',
+            ['id'],
+            (Hobby item) => <String, Object?>{
+                  'name': item.name,
+                  'personId': item.personId,
+                  'id': item.id
+                },
             changeListener);
 
   final sqflite.DatabaseExecutor database;
@@ -251,6 +283,8 @@ class _$HobbyDao extends HobbyDao {
   final InsertionAdapter<Hobby> _hobbyInsertionAdapter;
 
   final UpdateAdapter<Hobby> _hobbyUpdateAdapter;
+
+  final DeletionAdapter<Hobby> _hobbyDeletionAdapter;
 
   @override
   Future<List<Hobby>> getAll() async {
@@ -290,5 +324,15 @@ class _$HobbyDao extends HobbyDao {
   @override
   Future<void> update(Hobby obj) async {
     await _hobbyUpdateAdapter.update(obj, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteA(Hobby obj) {
+    return _hobbyDeletionAdapter.deleteAndReturnChangedRows(obj);
+  }
+
+  @override
+  Future<int> deleteAllT(List<Hobby> list) {
+    return _hobbyDeletionAdapter.deleteListAndReturnChangedRows(list);
   }
 }

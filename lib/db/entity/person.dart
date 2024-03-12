@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:floor/floor.dart';
 import 'package:test_floor/db/database.dart';
 import 'package:test_floor/db/entity/hobby.dart';
@@ -17,4 +18,8 @@ class Person extends BaseEntity {
 
   Stream<List<Hobby>> getHobbiesAsStream(AppDatabase db) =>
       db.personDao.getPersonHobbiesAsStream(super.id!);
+
+  Future<int> delete(AppDatabase db) async{
+    return await db.personDao.deletePerson(db, this);
+  }
 }
