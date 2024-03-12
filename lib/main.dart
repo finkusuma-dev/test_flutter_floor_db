@@ -102,10 +102,13 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: peopleResult.data!.length + 1,
             itemBuilder: (_, int i) {
               return i <= peopleResult.data!.length - 1
-              ? PersonWidget(              
-                person: people[i],
-                database: database!,
-              ) : const SizedBox(height: 90,);
+                  ? PersonWidget(
+                      person: people[i],
+                      database: database!,
+                    )
+                  : const SizedBox(
+                      height: 90,
+                    );
             },
           );
         } else if (peopleResult.hasError) {
@@ -216,7 +219,6 @@ class _PersonWidgetState extends State<PersonWidget> {
           children: [
             _addHobbyButton(),
             _deleteButton(),
-            
           ],
         ),
       ),
@@ -253,16 +255,16 @@ class _PersonWidgetState extends State<PersonWidget> {
 
   Widget _deleteButton() {
     return IconButton(
-              onPressed: () {
-                widget.database.personDao.deletePerson(
-                  widget.database,
-                  widget.person,
-                );
-              },
-              icon: Icon(
-                Icons.delete_outline_rounded,
-                color: Colors.red[700],
-              ),
-            );
+      onPressed: () {
+        widget.database.personDao.deletePerson(
+          widget.database,
+          widget.person,
+        );
+      },
+      icon: Icon(
+        Icons.delete_outline_rounded,
+        color: Colors.red[700],
+      ),
+    );
   }
 }
