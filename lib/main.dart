@@ -99,12 +99,14 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 1,
               color: Colors.grey.withOpacity(0.5),
             ),
-            itemCount: peopleResult.data!.length,
-            itemBuilder: (_, int i) => PersonWidget(
-              // i: i,
-              person: people[i],
-              database: database!,
-            ),
+            itemCount: peopleResult.data!.length + 1,
+            itemBuilder: (_, int i) {
+              return i <= peopleResult.data!.length - 1
+              ? PersonWidget(              
+                person: people[i],
+                database: database!,
+              ) : const SizedBox(height: 90,);
+            },
           );
         } else if (peopleResult.hasError) {
           return Center(
@@ -188,6 +190,7 @@ class _PersonWidgetState extends State<PersonWidget> {
             'Person id = ${widget.person.id}, name = ${widget.person.name}');
       },
       child: ListTile(
+        contentPadding: const EdgeInsets.only(right: 6, left: 20),
         title: Text(widget.person.name),
         subtitle: widget.person.birthDate != null || hobbies.isNotEmpty
             ? Row(
@@ -195,7 +198,9 @@ class _PersonWidgetState extends State<PersonWidget> {
                   Text(widget.person.birthDate != null
                       ? General.dateFormat(widget.person.birthDate!)
                       : ''),
-                  Text(widget.person.birthDate != null && hobbies.isNotEmpty ? ' | ': ''),
+                  Text(widget.person.birthDate != null && hobbies.isNotEmpty
+                      ? ' | '
+                      : ''),
                   Text(
                     hobbies
                         .map(
