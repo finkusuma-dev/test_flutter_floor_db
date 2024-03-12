@@ -11,7 +11,7 @@ import 'type_converters/date_time_converter.dart';
 part 'database.g.dart'; // the generated code will be there
 
 @TypeConverters([DateTimeConverter])
-@Database(version: 3, entities: [Person, Hobby], views: [Name])
+@Database(version: 4, entities: [Person, Hobby], views: [Name])
 abstract class AppDatabase extends FloorDatabase {
   PersonDao get personDao;
   HobbyDao get hobbyDao;
@@ -30,13 +30,24 @@ abstract class AppDatabase extends FloorDatabase {
         .build();
   }
 
-  static List<Migration> migrations = [migration1to2, migration2to3];
+  static List<Migration> migrations = [
+    migration1to2,
+    migration2to3,
+    migration3to4,
+  ];
 }
 
-final migration1to2 = Migration(1, 2, (db) async {
-  await db.execute('ALTER TABLE Person ADD COLUMN age INTEGER');
+final migration3to4 = Migration(3, 4, (db) async {
+  await db.execute(
+    'ALTER TABLE Person ADD COLUMN birthDate INTEGER',
+  );
 });
 final migration2to3 = Migration(2, 3, (db) async {
   await db.execute(
       'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
+});
+final migration1to2 = Migration(1, 2, (db) async {
+  await db.execute(
+    'ALTER TABLE Person ADD COLUMN age INTEGER',
+  );
 });
