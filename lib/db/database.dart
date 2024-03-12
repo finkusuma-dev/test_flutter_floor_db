@@ -11,7 +11,7 @@ import 'type_converters/date_time_converter.dart';
 part 'database.g.dart'; // the generated code will be there
 
 @TypeConverters([DateTimeConverter])
-@Database(version: 4, entities: [Person, Hobby], views: [Name])
+@Database(version: 5, entities: [Person, Hobby], views: [Name])
 abstract class AppDatabase extends FloorDatabase {
   PersonDao get personDao;
   HobbyDao get hobbyDao;
@@ -23,7 +23,7 @@ abstract class AppDatabase extends FloorDatabase {
         .build();
   }
 
-  static Future<AppDatabase> storage(String path) async {
+  static Future<AppDatabase> storage(String path) async {    
     return await $FloorAppDatabase
         .databaseBuilder(path)
         .addMigrations(migrations)
@@ -34,19 +34,25 @@ abstract class AppDatabase extends FloorDatabase {
     migration1to2,
     migration2to3,
     migration3to4,
+    migration4to5,
   ];
 }
 
-final migration3to4 = Migration(3, 4, (db) async {
+final migration4to5 = Migration(4, 5, (db) async {
+  await db.execute(
+    'ALTER TABLE Person ADD COLUMN gender INTEGER',
+  );
+});
+final migration3to4 = Migration(3, 5, (db) async {
   await db.execute(
     'ALTER TABLE Person ADD COLUMN birthDate INTEGER',
   );
 });
-final migration2to3 = Migration(2, 3, (db) async {
+final migration2to3 = Migration(2, 5, (db) async {
   await db.execute(
       'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 });
-final migration1to2 = Migration(1, 2, (db) async {
+final migration1to2 = Migration(1, 5, (db) async {
   await db.execute(
     'ALTER TABLE Person ADD COLUMN age INTEGER',
   );

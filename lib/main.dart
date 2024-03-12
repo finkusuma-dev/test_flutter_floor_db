@@ -188,32 +188,43 @@ class _PersonWidgetState extends State<PersonWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        dev.log(
-            'Person id = ${widget.person.id}, name = ${widget.person.name}');
+      onTap: () async {
+        dev.log('${widget.person.toString()}}');
+        Person? person = await showPersonInputDialog(
+          context,
+          title: 'Update Person',
+          person: widget.person,
+        );
+        dev.log('Updated person: ${person.toString()}');
+        if (person == null) return;
+        await widget.database.personDao.update(person);
+        setState(() {});
       },
       child: ListTile(
         contentPadding: const EdgeInsets.only(right: 6, left: 20),
         title: Text(widget.person.name),
-        subtitle: widget.person.birthDate != null || hobbies.isNotEmpty
-            ? Row(
-                children: [
-                  Text(widget.person.birthDate != null
-                      ? General.dateFormat(widget.person.birthDate!)
-                      : ''),
-                  Text(widget.person.birthDate != null && hobbies.isNotEmpty
-                      ? ' | '
-                      : ''),
-                  Text(
-                    hobbies
-                        .map(
-                          (e) => e.name,
-                        )
-                        .join(', '),
-                  ),
-                ],
-              )
-            : null,
+        subtitle: () {
+          List<String> strings = [];
+
+          if (widget.person.gender != null) {
+            strings.add(widget.person.gender!.name);
+          }
+          if (widget.person.birthDate != null) {
+            strings.add(General.dateFormat(widget.person.birthDate!));
+          }
+          if (hobbies.isNotEmpty) {
+            strings.add(
+              hobbies
+                  .map(
+                    (e) => e.name,
+                  )
+                  .join(', '),
+            );
+          }
+
+          if (strings.isEmpty) return null;
+          return Text(strings.join(' | '));
+        }(),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

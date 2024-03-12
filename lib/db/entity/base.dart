@@ -16,7 +16,7 @@ abstract class BaseDao<T>{
   // @Query('select * from ${T.toString()} where id=:id')
   // Future<T?> get(int id);
 
-  @Update()
+  @Update(onConflict: OnConflictStrategy.replace)
   Future<void> update(T obj);
 
 

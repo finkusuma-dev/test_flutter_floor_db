@@ -71,7 +71,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -87,7 +87,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `birthDate` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
+            'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `birthDate` INTEGER, `gender` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 
@@ -123,6 +123,7 @@ class _$PersonDao extends PersonDao {
                   'name': item.name,
                   'age': item.age,
                   'birthDate': _dateTimeConverter.encode(item.birthDate),
+                  'gender': item.gender?.index,
                   'id': item.id
                 },
             changeListener),
@@ -134,6 +135,7 @@ class _$PersonDao extends PersonDao {
                   'name': item.name,
                   'age': item.age,
                   'birthDate': _dateTimeConverter.encode(item.birthDate),
+                  'gender': item.gender?.index,
                   'id': item.id
                 },
             changeListener),
@@ -145,6 +147,7 @@ class _$PersonDao extends PersonDao {
                   'name': item.name,
                   'age': item.age,
                   'birthDate': _dateTimeConverter.encode(item.birthDate),
+                  'gender': item.gender?.index,
                   'id': item.id
                 },
             changeListener);
@@ -168,7 +171,10 @@ class _$PersonDao extends PersonDao {
             id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?,
-            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)));
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?),
+            gender: row['gender'] == null
+                ? null
+                : Gender.values[row['gender'] as int]));
   }
 
   @override
@@ -178,7 +184,10 @@ class _$PersonDao extends PersonDao {
             id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?,
-            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)),
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?),
+            gender: row['gender'] == null
+                ? null
+                : Gender.values[row['gender'] as int]),
         queryableName: 'Person',
         isView: false);
   }
@@ -190,7 +199,10 @@ class _$PersonDao extends PersonDao {
             id: row['id'] as int?,
             name: row['name'] as String,
             age: row['age'] as int?,
-            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)),
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?),
+            gender: row['gender'] == null
+                ? null
+                : Gender.values[row['gender'] as int]),
         arguments: [id]);
   }
 
@@ -231,7 +243,7 @@ class _$PersonDao extends PersonDao {
 
   @override
   Future<void> update(Person obj) async {
-    await _personUpdateAdapter.update(obj, OnConflictStrategy.abort);
+    await _personUpdateAdapter.update(obj, OnConflictStrategy.replace);
   }
 
   @override
@@ -329,7 +341,7 @@ class _$HobbyDao extends HobbyDao {
 
   @override
   Future<void> update(Hobby obj) async {
-    await _hobbyUpdateAdapter.update(obj, OnConflictStrategy.abort);
+    await _hobbyUpdateAdapter.update(obj, OnConflictStrategy.replace);
   }
 
   @override

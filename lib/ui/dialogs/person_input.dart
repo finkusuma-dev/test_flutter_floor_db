@@ -3,19 +3,23 @@ import 'package:test_floor/db/entity/person.dart';
 import 'package:test_floor/utils/general.dart';
 
 Future<Person?> showPersonInputDialog(BuildContext context,
-    {String title = ''}) async {
+    {String title = '', Person? person}) async {
   return showDialog<Person?>(
     context: context,
     builder: (context) => PersonInputDialog(
       title: title,
+      person: person,
     ),
   );
 }
 
 class PersonInputDialog extends StatefulWidget {
-  const PersonInputDialog({super.key, this.title = ''});
+  const PersonInputDialog(
+      {super.key, this.title = '', this.person, this.gender});
 
   final String title;
+  final Person? person;
+  final Gender? gender;
 
   @override
   State<PersonInputDialog> createState() => _PersonInputDialogState();
@@ -25,10 +29,19 @@ class _PersonInputDialogState extends State<PersonInputDialog> {
   final TextEditingController _textFieldController = TextEditingController();
   final FocusNode _textFieldFocusNode = FocusNode();
 
-  DateTime? birthDate;
+  int? _id;
+  Gender? _gender;
+  DateTime? _birthDate;
+  // Person? person;
 
   @override
   void initState() {
+    //person = widget.person ?? Person(name: name);
+    _textFieldController.text = widget.person?.name ?? '';
+    _id = widget.person?.id;
+    _birthDate = widget.person?.birthDate;
+    _gender = widget.person?.gender;
+
     _textFieldFocusNode.requestFocus();
     super.initState();
   }
@@ -50,13 +63,40 @@ class _PersonInputDialogState extends State<PersonInputDialog> {
           ),
           Row(
             children: [
-              Text('BirthDate: ${birthDate!= null ? General.dateFormat(birthDate!) : '(Not Set)'}'),
+              const Text('Gender:'),
+              DropdownButton<Gender>(
+                onChanged: (Gender? value) {
+                  setState(() {
+                    _gender = value;
+                  });
+                },
+                value: _gender,
+                items: Gender.values
+                    .map(
+                      (value) => DropdownMenuItem<Gender>(
+                        value: value,
+                        child: Text(value.name),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            children: [
+              Text(
+                'BirthDate: ${_birthDate != null ? General.dateFormat(_birthDate!) : '(Not Set)'}',
+              ),
               TextButton(
                 onPressed: () async {
-                  birthDate = await showDatePicker(
+                  _birthDate = await showDatePicker(
                     context: context,
-                    firstDate: birthDate ?? DateTime(1900, 1, 1),
-                    lastDate: birthDate ?? DateTime.now(),
+                    firstDate: _birthDate ?? DateTime(1900, 1, 1),
+                    lastDate: _birthDate ?? DateTime.now(),
+                    initialDate: _birthDate,
                   );
 
                   setState(() {});
@@ -83,8 +123,15 @@ class _PersonInputDialogState extends State<PersonInputDialog> {
           child: const Text('OK'),
           onPressed: () {
             // print(_textFieldController.text);
-            Navigator.pop(context,
-                Person(name: _textFieldController.text, birthDate: birthDate));
+            Navigator.pop(
+              context,
+              Person(
+                id: _id,
+                name: _textFieldController.text,
+                gender: _gender,
+                birthDate: _birthDate,
+              ),
+            );
           },
         ),
       ],
