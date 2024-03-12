@@ -10,8 +10,10 @@ part 'person.dao.dart';
 class Person extends BaseEntity {
   String name;
   int? age;
+  
+  DateTime? birthDate;
 
-  Person({super.id, required this.name, this.age});
+  Person({super.id, required this.name, this.age, this.birthDate});
 
   Future<List<Hobby>> getHobbies(AppDatabase db) async =>
       await db.personDao.getPersonHobbies(super.id!);

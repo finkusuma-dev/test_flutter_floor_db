@@ -71,9 +71,11 @@ void main() {
         expect(actual.age, equals(person.age));
 
         person.age = 30;
+        person.birthDate = DateTime(1980, 1, 1);
         await personDao.update(person);
         final actual2 = await personDao.get(person.id!);
         expect(actual2!.age, equals(person.age));
+        expect(actual2.birthDate, equals(person.birthDate));
       });
     });
 

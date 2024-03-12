@@ -87,7 +87,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
+            'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `birthDate` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 
@@ -122,6 +122,7 @@ class _$PersonDao extends PersonDao {
             (Person item) => <String, Object?>{
                   'name': item.name,
                   'age': item.age,
+                  'birthDate': _dateTimeConverter.encode(item.birthDate),
                   'id': item.id
                 },
             changeListener),
@@ -132,6 +133,7 @@ class _$PersonDao extends PersonDao {
             (Person item) => <String, Object?>{
                   'name': item.name,
                   'age': item.age,
+                  'birthDate': _dateTimeConverter.encode(item.birthDate),
                   'id': item.id
                 },
             changeListener),
@@ -142,6 +144,7 @@ class _$PersonDao extends PersonDao {
             (Person item) => <String, Object?>{
                   'name': item.name,
                   'age': item.age,
+                  'birthDate': _dateTimeConverter.encode(item.birthDate),
                   'id': item.id
                 },
             changeListener);
@@ -164,7 +167,8 @@ class _$PersonDao extends PersonDao {
         mapper: (Map<String, Object?> row) => Person(
             id: row['id'] as int?,
             name: row['name'] as String,
-            age: row['age'] as int?));
+            age: row['age'] as int?,
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)));
   }
 
   @override
@@ -173,7 +177,8 @@ class _$PersonDao extends PersonDao {
         mapper: (Map<String, Object?> row) => Person(
             id: row['id'] as int?,
             name: row['name'] as String,
-            age: row['age'] as int?),
+            age: row['age'] as int?,
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)),
         queryableName: 'Person',
         isView: false);
   }
@@ -184,7 +189,8 @@ class _$PersonDao extends PersonDao {
         mapper: (Map<String, Object?> row) => Person(
             id: row['id'] as int?,
             name: row['name'] as String,
-            age: row['age'] as int?),
+            age: row['age'] as int?,
+            birthDate: _dateTimeConverter.decode(row['birthDate'] as int?)),
         arguments: [id]);
   }
 
@@ -336,3 +342,6 @@ class _$HobbyDao extends HobbyDao {
     return _hobbyDeletionAdapter.deleteListAndReturnChangedRows(list);
   }
 }
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();

@@ -1,11 +1,16 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:test_floor/db/database.dart';
 import 'package:test_floor/db/entity/hobby.dart';
 import 'package:test_floor/db/entity/person.dart';
 import 'package:test_floor/ui/dialogs/input.dart';
+import 'package:test_floor/ui/dialogs/person_input.dart';
+import 'package:test_floor/utils/app_folder.dart';
+import 'package:test_floor/utils/general.dart';
+import 'package:test_floor/utils/platform_info.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,11 +51,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     () async {
-      var docPath = await getApplicationDocumentsDirectory();
-      String dbPath = '${docPath.path}/data.db';
-      dev.log('path: $dbPath');
+      var docPath =
+          await AppFolder.document(); //getApplicationDocumentsDirectory();
+
+      String dbPath = path.join(docPath.path, 'data.db');
+      dev.log('db path: $dbPath');
       // database = await AppDatabase.memory();
-      database = await AppDatabase.storage((dbPath));
+      database = await AppDatabase.storage(dbPath);
       peopleStream = database!.personDao.getAllAsStream();
 
       Future.delayed(Duration.zero, () {
@@ -128,12 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _handleInsertNewPerson() async {
-    String? name = await showInputDialog(context, title: 'Person');
-    if (name == null) return;
+    Person? person = await showPersonInputDialog(context, title: 'Person');
+    if (person == null) return;
 
-    await database?.personDao.insert(
-      Person(name: name),
-    );
+    await database?.personDao.insert(person);
 
     setState(() {});
   }
@@ -184,13 +189,21 @@ class _PersonWidgetState extends State<PersonWidget> {
       },
       child: ListTile(
         title: Text(widget.person.name),
-        subtitle: hobbies.isNotEmpty
-            ? Text(
-                hobbies
-                    .map(
-                      (e) => e.name,
-                    )
-                    .join(', '),
+        subtitle: widget.person.birthDate != null || hobbies.isNotEmpty
+            ? Row(
+                children: [
+                  Text(widget.person.birthDate != null
+                      ? General.dateFormat(widget.person.birthDate!)
+                      : ''),
+                  Text(widget.person.birthDate != null && hobbies.isNotEmpty ? ' | ': ''),
+                  Text(
+                    hobbies
+                        .map(
+                          (e) => e.name,
+                        )
+                        .join(', '),
+                  ),
+                ],
               )
             : null,
         trailing: Row(

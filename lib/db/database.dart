@@ -6,9 +6,11 @@ import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'entity/person.dart';
 import 'entity/hobby.dart';
+import 'type_converters/date_time_converter.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
+@TypeConverters([DateTimeConverter])
 @Database(version: 3, entities: [Person, Hobby], views: [Name])
 abstract class AppDatabase extends FloorDatabase {
   PersonDao get personDao;

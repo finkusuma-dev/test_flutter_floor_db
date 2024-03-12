@@ -23,7 +23,7 @@ class _InputDialogState extends State<InputDialog> {
 
   @override
   void initState() {
-    _textFieldFocusNode.requestFocus();
+    _textFieldFocusNode.requestFocus();    
     super.initState();
   }
 
@@ -31,7 +31,7 @@ class _InputDialogState extends State<InputDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.title),
-      content: TextField(
+      content: TextField(        
         focusNode: _textFieldFocusNode,
         controller: _textFieldController,
         decoration: InputDecoration(hintText: "Enter ${widget.title}"),
