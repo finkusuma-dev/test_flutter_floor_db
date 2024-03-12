@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:test_floor/db/database.dart';
 import 'package:test_floor/db/entity/hobby.dart';
 import 'package:test_floor/db/entity/person.dart';
-import 'package:test_floor/db/ui/dialogs/input.dart';
+import 'package:test_floor/ui/dialogs/input.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
