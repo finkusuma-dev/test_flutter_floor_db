@@ -215,18 +215,8 @@ class _PersonWidgetState extends State<PersonWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _addHobbyButton(),
-            IconButton(
-              onPressed: () {
-                widget.database.personDao.deletePerson(
-                  widget.database,
-                  widget.person,
-                );
-              },
-              icon: const Icon(
-                Icons.delete_outline,
-                color: Colors.red,
-              ),
-            ),
+            _deleteButton(),
+            
           ],
         ),
       ),
@@ -259,5 +249,20 @@ class _PersonWidgetState extends State<PersonWidget> {
     widget.database.hobbyDao.insert(
       Hobby(name: newHobby, personId: widget.person.id!),
     );
+  }
+
+  Widget _deleteButton() {
+    return IconButton(
+              onPressed: () {
+                widget.database.personDao.deletePerson(
+                  widget.database,
+                  widget.person,
+                );
+              },
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: Colors.red[700],
+              ),
+            );
   }
 }
