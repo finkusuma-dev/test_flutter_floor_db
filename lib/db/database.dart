@@ -43,16 +43,16 @@ final migration4to5 = Migration(4, 5, (db) async {
     'ALTER TABLE Person ADD COLUMN gender INTEGER',
   );
 });
-final migration3to4 = Migration(3, 5, (db) async {
+final migration3to4 = Migration(3, 4, (db) async {
   await db.execute(
     'ALTER TABLE Person ADD COLUMN birthDate INTEGER',
   );
 });
-final migration2to3 = Migration(2, 5, (db) async {
+final migration2to3 = Migration(2, 3, (db) async {
   await db.execute(
       'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
 });
-final migration1to2 = Migration(1, 5, (db) async {
+final migration1to2 = Migration(1, 2, (db) async {
   await db.execute(
     'ALTER TABLE Person ADD COLUMN age INTEGER',
   );
