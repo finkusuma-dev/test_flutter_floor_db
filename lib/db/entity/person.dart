@@ -29,9 +29,9 @@ class Person extends BaseEntity {
   Stream<List<Hobby>> getHobbiesAsStream(AppDatabase db) =>
       db.personDao.getPersonHobbiesAsStream(super.id!);
 
-  Future<int> delete(AppDatabase db) async {
-    return await db.personDao.deletePerson(db, this);
-  }
+  // Future<int> delete(AppDatabase db) async {
+  //   return await db.personDao.deletePerson(db, this);
+  // }
 
   @override
   String toString() {

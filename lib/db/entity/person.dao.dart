@@ -21,13 +21,15 @@ abstract class PersonDao extends BaseDao<Person>{
   @Query('select * from name')
   Future<List<Name>> showNames();
 
-  Future<int> deletePerson(AppDatabase database, Person person) async{
-    int count = await database.hobbyDao.deletePersonHobbies(person.id!);
-    dev.log('$count ${person.name}\'s hobbies are deleted');
+  /// Not used, hobby.personId has foreign key on delete cascae
+  /// 
+  // Future<int> deletePerson(AppDatabase database, Person person) async{
+  //   int count = await database.hobbyDao.deletePersonHobbies(person.id!);
+  //   dev.log('$count ${person.name}\'s hobbies are deleted');
 
 
-    return await super.deleteT(person);
-  }
+  //   return await super.deleteT(person);
+  // }
 }
 
 @DatabaseView('SELECT distinct(name) AS name FROM person', viewName: 'name')

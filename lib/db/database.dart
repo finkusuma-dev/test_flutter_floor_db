@@ -11,7 +11,11 @@ import 'type_converters/date_time_converter.dart';
 part 'database.g.dart'; // the generated code will be there
 
 @TypeConverters([DateTimeConverter])
-@Database(version: 5, entities: [Person, Hobby], views: [Name])
+@Database(
+  version: 6,
+  entities: [Person, Hobby],
+  views: [Name],
+)
 abstract class AppDatabase extends FloorDatabase {
   PersonDao get personDao;
   HobbyDao get hobbyDao;
@@ -23,7 +27,7 @@ abstract class AppDatabase extends FloorDatabase {
         .build();
   }
 
-  static Future<AppDatabase> storage(String path) async {    
+  static Future<AppDatabase> storage(String path) async {
     return await $FloorAppDatabase
         .databaseBuilder(path)
         .addMigrations(migrations)
@@ -35,9 +39,44 @@ abstract class AppDatabase extends FloorDatabase {
     migration2to3,
     migration3to4,
     migration4to5,
+    migration5to6,
   ];
 }
 
+final migration5to6 = Migration(5, 6, (db) async {
+  /// Add hobby foreign key personId => Person(id), update & delete cascade
+  /// 
+  await db.execute('PRAGMA foreign_keys = 0;'
+      'CREATE TABLE sqlitestudio_temp_table AS SELECT * '
+      '                                           FROM Hobby; '
+      'DROP TABLE Hobby;'
+      ' '
+      'CREATE TABLE Hobby ( '
+      '    name     TEXT    NOT NULL, '
+      '    personId INTEGER NOT NULL, '
+      '    id       INTEGER, '
+      '    PRIMARY KEY ( '
+      '        id AUTOINCREMENT '
+      '    ), '
+      '    FOREIGN KEY ( '
+      '        personId '
+      '    ) '
+      '    REFERENCES Person (id) ON DELETE CASCADE '
+      '                           ON UPDATE CASCADE '
+      '); '      
+      'INSERT INTO Hobby ( '
+      '                      name, '
+      '                      personId, '
+      '                      id '
+      '                  ) '
+      '                  SELECT name, '
+      '                         personId, '
+      '                         id '
+      '                    FROM sqlitestudio_temp_table; '
+      ' '
+      'DROP TABLE sqlitestudio_temp_table; '      
+      'PRAGMA foreign_keys = 1; ');
+});
 final migration4to5 = Migration(4, 5, (db) async {
   await db.execute(
     'ALTER TABLE Person ADD COLUMN gender INTEGER',

@@ -267,8 +267,7 @@ class _PersonWidgetState extends State<PersonWidget> {
   Widget _deleteButton() {
     return IconButton(
       onPressed: () {
-        widget.database.personDao.deletePerson(
-          widget.database,
+        widget.database.personDao.deleteT(          
           widget.person,
         );
       },

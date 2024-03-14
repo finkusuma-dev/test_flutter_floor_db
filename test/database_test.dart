@@ -77,6 +77,26 @@ void main() {
         expect(actual2!.age, equals(person.age));
         expect(actual2.birthDate, equals(person.birthDate));
       });
+
+      test('Delete person also delete his hobbies', () async{
+        final person = Person(name: 'Simon', age: 25);
+        int personId = await personDao.insert(
+          person,
+        );
+
+        List<String> hobbies = ['Reading', 'Fishing'];
+
+        for (String hobbyStr in hobbies) {
+          final Hobby hobby = Hobby(name: hobbyStr, personId: personId);
+          await hobbyDao.insert(hobby);          
+        }     
+
+        int deleteId = await personDao.deleteT(person);
+        expect(deleteId, personId);
+
+        expect(await hobbyDao.getAll(), isEmpty);
+        expect(await personDao.getAll(), isEmpty);
+      });
     });
 
     group('Test Hobby:', () {
@@ -104,5 +124,6 @@ void main() {
             true);
       });
     });
+    
   });
 }

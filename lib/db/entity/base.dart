@@ -30,12 +30,12 @@ abstract class BaseDao<T>{
   }
   
   @delete
-  Future<int> deleteA(T obj);
+  Future<int> deleteT(T obj);
 
-  Future<int> deleteT(T obj) async {
-    int id = await deleteA(obj);
-    return id;
-  }
+  // Future<int> deleteT(T obj) async {
+  //   int id = await deleteA(obj);
+  //   return id;
+  // }
 
   @delete
   Future<int> deleteAllT(List<T> list);

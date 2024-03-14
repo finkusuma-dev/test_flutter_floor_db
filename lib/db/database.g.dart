@@ -71,7 +71,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -89,7 +89,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Person` (`name` TEXT NOT NULL, `age` INTEGER, `birthDate` INTEGER, `gender` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT)');
+            'CREATE TABLE IF NOT EXISTS `Hobby` (`name` TEXT NOT NULL, `personId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY (`personId`) REFERENCES `Person` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `name` AS SELECT distinct(name) AS name FROM person');
@@ -247,7 +247,7 @@ class _$PersonDao extends PersonDao {
   }
 
   @override
-  Future<int> deleteA(Person obj) {
+  Future<int> deleteT(Person obj) {
     return _personDeletionAdapter.deleteAndReturnChangedRows(obj);
   }
 
@@ -345,7 +345,7 @@ class _$HobbyDao extends HobbyDao {
   }
 
   @override
-  Future<int> deleteA(Hobby obj) {
+  Future<int> deleteT(Hobby obj) {
     return _hobbyDeletionAdapter.deleteAndReturnChangedRows(obj);
   }
 
